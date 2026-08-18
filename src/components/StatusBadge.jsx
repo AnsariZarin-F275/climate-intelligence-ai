@@ -1,18 +1,17 @@
-import React from "react";
+import React from 'react';
 
-function StatusBadge({ level }) {
-  const normalizedLevel = level
-    ? level.toUpperCase()
-    : "LOW";
+const StatusBadge = ({ level }) => {
+  const getBadgeClass = () => {
+    switch (level) {
+      case 'LOW': return 'badge-low';
+      case 'MODERATE': return 'badge-moderate';
+      case 'HIGH': return 'badge-high';
+      case 'CRITICAL': return 'badge-critical';
+      default: return 'badge-default';
+    }
+  };
 
-  return (
-    <span
-      className={`status-badge status-${normalizedLevel.toLowerCase()}`}
-    >
-      <span className="badge-dot"></span>
-      {normalizedLevel}
-    </span>
-  );
-}
+  return <span className={`status-badge ${getBadgeClass()}`}>{level}</span>;
+};
 
 export default StatusBadge;
