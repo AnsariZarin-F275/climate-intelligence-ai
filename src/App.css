@@ -58,3 +58,35 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-
 /* Loading & Error States */
 .loading-text { text-align: center; color: #2563eb; font-weight: 600; padding: 2rem; }
 .error-text { text-align: center; color: #dc2626; background: #fee2e2; padding: 1rem; border-radius: 6px; }
+
+/* Page Navigation */
+.page-navigation {
+  display: flex;
+  justify-content: flex-start; /* Changed from center to left */
+  gap: 1rem;
+  margin: 1.5rem 2rem; /* Added side margin to match header */
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e5e7eb; /* Optional: adds a separator line */
+}
+
+.page-navigation button {
+  background: white;
+  color: #1e3a8a;
+  border: 2px solid #1e3a8a;
+  padding: 0.6rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.page-navigation button:hover {
+  background: #1e3a8a;
+  color: white;
+}
+
+.page-navigation button.active {
+  background: #1e3a8a;
+  color: white;
+}
