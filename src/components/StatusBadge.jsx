@@ -1,18 +1,19 @@
-import React from 'react';
+import React from "react";
 
-const StatusBadge = ({ level }) => {
-  // Conditional class assignment based on risk level
-  const getBadgeClass = () => {
-    switch (level) {
-      case 'LOW': return 'badge-low';
-      case 'MODERATE': return 'badge-moderate';
-      case 'HIGH': return 'badge-high';
-      case 'CRITICAL': return 'badge-critical';
-      default: return 'badge-default';
-    }
-  };
+function StatusBadge({ level }) {
 
-  return <span className={`status-badge ${getBadgeClass()}`}>{level}</span>;
-};
+  const normalizedLevel =
+    level?.toUpperCase() || "LOW";
+
+  return (
+    <span
+      className={`status-badge status-${normalizedLevel.toLowerCase()}`}
+    >
+      <span className="status-dot"></span>
+
+      {normalizedLevel}
+    </span>
+  );
+}
 
 export default StatusBadge;
