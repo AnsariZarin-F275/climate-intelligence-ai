@@ -5,11 +5,13 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-
 /* Header */
 .app-header {
   display: flex; justify-content: space-between; align-items: center;
-  background: #1e3a8a; color: white; padding: 1rem 2rem;
+  background: #1e3a8a; color: white; padding: 1.5rem 2rem;
 }
-.header-left h1 { font-size: 1.5rem; }
-.dashboard-title { font-size: 0.9rem; opacity: 0.8; }
-.header-right { text-align: right; font-size: 0.9rem; }
+.header-left { display: flex; flex-direction: column; gap: 5px; } /* Adds space between title and subtitle */
+.header-left h1 { font-size: 1.5rem; margin: 0; }
+.dashboard-title { font-size: 0.9rem; opacity: 0.8; margin: 0; }
+.header-right { text-align: right; font-size: 0.9rem; display: flex; flex-direction: column; gap: 5px; } /* Adds space between status and sync */
+.officer-status strong { color: #4ade80; } /* Makes the word "Online" green */
 
 /* Main Content & Controls */
 .main-content { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
@@ -42,11 +44,16 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-
 .no-alerts { text-align: center; color: #6b7280; padding: 2rem 0; }
 
 /* Status Badges */
-.status-badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: bold; color: white; text-transform: uppercase; }
-.badge-low { background: #10b981; }      /* Green */
-.badge-moderate { background: #f59e0b; } /* Orange */
-.badge-high { background: #f97316; }     /* Dark Orange */
-.badge-critical { background: #ef4444; } /* Red */
+.status-badge { 
+  display: inline-flex; align-items: center; /* Fixes alignment */
+  list-style: none; /* Removes the bullet point */
+  padding: 0.35rem 1rem; border-radius: 9999px; font-size: 0.8rem; font-weight: bold; 
+  text-transform: uppercase; letter-spacing: 0.5px; 
+}
+.badge-low { background: #10b981; color: white; }      /* Green */
+.badge-moderate { background: #f59e0b; color: #000; }  /* Amber with BLACK text so it's readable */
+.badge-high { background: #f97316; color: white; }     /* Dark Orange */
+.badge-critical { background: #ef4444; color: white; } /* Red */
 
 /* Loading & Error States */
 .loading-text { text-align: center; color: #2563eb; font-weight: 600; padding: 2rem; }
