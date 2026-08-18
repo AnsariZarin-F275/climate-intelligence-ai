@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import Header from './components/Header';
-import RiskAssessment from './components/RiskAssessment';
-import AlertPanel from './components/AlertPanel';
-import ResponseManagement from './pages/response-management/ResponseManagement';
-import { fetchClimateData } from './services/climateApi';
-import { getRiskAssessment } from './utils/riskAnalyzer';
-import './App.css';
+import React, { useState, useEffect } from "react";
+
+import Header from "./components/Header";
+import RiskAssessment from "./components/RiskAssessment";
+import AlertPanel from "./components/AlertPanel";
+import ResponseManagement from "./pages/response-management/ResponseManagement";
+
+import { fetchClimateData } from "./services/climateApi";
+import { getRiskAssessment } from "./utils/riskAnalyzer";
+
+import "./App.css";
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('risk');
+  const [currentPage, setCurrentPage] = useState("risk");
 
-  // Centralized climate state
-  const [selectedRegion, setSelectedRegion] = useState('Mumbai');
+  const [selectedRegion, setSelectedRegion] = useState("Mumbai");
   const [climateData, setClimateData] = useState(null);
   const [riskAssessment, setRiskAssessment] = useState({});
   const [alert, setAlert] = useState({ active: false });
@@ -19,7 +21,6 @@ function App() {
   const [error, setError] = useState(null);
   const [lastSyncTime, setLastSyncTime] = useState(null);
 
-  // Load climate information
   const loadRegionalData = async (region) => {
     setLoading(true);
     setError(null);
@@ -30,11 +31,12 @@ function App() {
       setClimateData(data);
 
       const assessment = getRiskAssessment(data.heatIndex);
+
       setRiskAssessment(assessment);
 
       if (
-        assessment.riskLevel === 'HIGH' ||
-        assessment.riskLevel === 'CRITICAL'
+        assessment.riskLevel === "HIGH" ||
+        assessment.riskLevel === "CRITICAL"
       ) {
         setAlert({
           active: true,
@@ -42,7 +44,9 @@ function App() {
           message: `Heatwave conditions detected in ${region}. Immediate action required.`,
         });
       } else {
-        setAlert({ active: false });
+        setAlert({
+          active: false,
+        });
       }
 
       setLastSyncTime(data.lastUpdated);
@@ -53,12 +57,10 @@ function App() {
     }
   };
 
-  // Load data when selected region changes
   useEffect(() => {
     loadRegionalData(selectedRegion);
   }, [selectedRegion]);
 
-  // Automatic refresh every 30 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       loadRegionalData(selectedRegion);
@@ -78,99 +80,108 @@ function App() {
     loadRegionalData(selectedRegion);
   };
 
-  // Third page — Response Management
-  if (currentPage === 'response') {
-    return (
-      <ResponseManagement
-        onBack={() => setCurrentPage('risk')}
-      />
-    );
-  }
-
   return (
     <div className="app-container">
 
+      {/* SHARED HEADER — rendered exactly once */}
       <Header
         appName="Climate Intelligence AI"
-        dashboardTitle="Risk Assessment & Alerts"
+        dashboardTitle={
+          currentPage === "response"
+            ? "Response Management"
+            : "Risk Assessment & Alerts"
+        }
         officerStatus="Online"
         lastSyncTime={lastSyncTime}
       />
 
-      {/* Temporary page navigation */}
+      {/* PAGE NAVIGATION */}
       <nav className="page-navigation">
         <button
-          className={currentPage === 'risk' ? 'active' : ''}
-          onClick={() => setCurrentPage('risk')}
+          className={currentPage === "risk" ? "active" : ""}
+          onClick={() => setCurrentPage("risk")}
         >
           Risk Dashboard
         </button>
 
         <button
-          className={currentPage === 'response' ? 'active' : ''}
-          onClick={() => setCurrentPage('response')}
+          className={currentPage === "response" ? "active" : ""}
+          onClick={() => setCurrentPage("response")}
         >
           Response Management
         </button>
       </nav>
 
-      <main className="main-content">
+      {/* THIRD PAGE */}
+      {currentPage === "response" ? (
+        <ResponseManagement
+          onBack={() => setCurrentPage("risk")}
+        />
+      ) : (
+        <main className="main-content">
 
-        <div className="controls">
-          <label htmlFor="region-select">
-            Select Region:
-          </label>
+          <div className="controls">
+            <label htmlFor="region-select">
+              Select Region:
+            </label>
 
-          <select
-            id="region-select"
-            value={selectedRegion}
-            onChange={(e) => setSelectedRegion(e.target.value)}
-          >
-            <option value="Mumbai">Mumbai</option>
-            <option value="Pune">Pune</option>
-            <option value="Delhi">Delhi</option>
-            <option value="Nagpur">Nagpur</option>
-          </select>
+            <select
+              id="region-select"
+              value={selectedRegion}
+              onChange={(e) =>
+                setSelectedRegion(e.target.value)
+              }
+            >
+              <option value="Mumbai">Mumbai</option>
+              <option value="Pune">Pune</option>
+              <option value="Delhi">Delhi</option>
+              <option value="Nagpur">Nagpur</option>
+            </select>
 
-          <button
-            onClick={handleRefresh}
-            disabled={loading}
-          >
-            {loading ? 'Refreshing...' : 'Refresh Data'}
-          </button>
-        </div>
-
-        {loading && (
-          <p className="loading-text">
-            Loading climate data...
-          </p>
-        )}
-
-        {error && (
-          <p className="error-text">
-            Error: {error}
-          </p>
-        )}
-
-        {climateData && !loading && (
-          <div className="dashboard-grid">
-
-            <RiskAssessment
-              riskLevel={riskAssessment.riskLevel}
-              assessment={`Based on a heat index of ${climateData.heatIndex}°C, the region is classified as ${riskAssessment.riskLevel} risk.`}
-              recommendedAction={riskAssessment.recommendedAction}
-              heatIndex={climateData.heatIndex}
-            />
-
-            <AlertPanel
-              alert={alert}
-              onAcknowledge={handleAcknowledgeAlert}
-            />
-
+            <button
+              onClick={handleRefresh}
+              disabled={loading}
+            >
+              {loading
+                ? "Refreshing..."
+                : "Refresh Data"}
+            </button>
           </div>
-        )}
 
-      </main>
+          {loading && (
+            <p className="loading-text">
+              Loading climate data...
+            </p>
+          )}
+
+          {error && (
+            <p className="error-text">
+              Error: {error}
+            </p>
+          )}
+
+          {climateData && !loading && (
+            <div className="dashboard-grid">
+
+              <RiskAssessment
+                riskLevel={riskAssessment.riskLevel}
+                assessment={`Based on a heat index of ${climateData.heatIndex}°C, the region is classified as ${riskAssessment.riskLevel} risk.`}
+                recommendedAction={
+                  riskAssessment.recommendedAction
+                }
+                heatIndex={climateData.heatIndex}
+              />
+
+              <AlertPanel
+                alert={alert}
+                onAcknowledge={handleAcknowledgeAlert}
+              />
+
+            </div>
+          )}
+
+        </main>
+      )}
     </div>
   );
 }

@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 
-function FieldObservationForm({ selectedRegion, onSubmit }) {
-
+function FieldObservationForm({
+  selectedRegion,
+  onSubmit,
+}) {
   const [formData, setFormData] = useState({
     region: selectedRegion || "",
     observationType: "",
@@ -15,21 +17,18 @@ function FieldObservationForm({ selectedRegion, onSubmit }) {
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    setFormData((previousData) => ({
-      ...previousData,
+    setFormData((previous) => ({
+      ...previous,
       [name]: value,
     }));
 
-    if (errors[name]) {
-      setErrors((previousErrors) => ({
-        ...previousErrors,
-        [name]: "",
-      }));
-    }
+    setErrors((previous) => ({
+      ...previous,
+      [name]: "",
+    }));
   };
 
-  const validateForm = () => {
-
+  const validate = () => {
     const newErrors = {};
 
     if (!formData.region) {
@@ -54,10 +53,10 @@ function FieldObservationForm({ selectedRegion, onSubmit }) {
 
     if (formData.heatIndex === "") {
       newErrors.heatIndex =
-        "Heat index is required.";
+        "Heat Index is required.";
     } else if (isNaN(Number(formData.heatIndex))) {
       newErrors.heatIndex =
-        "Heat index must be numerical.";
+        "Heat Index must be numerical.";
     }
 
     if (!formData.remark.trim()) {
@@ -65,22 +64,23 @@ function FieldObservationForm({ selectedRegion, onSubmit }) {
         "Officer remark is required.";
     }
 
-    setErrors(newErrors);
-
-    return Object.keys(newErrors).length === 0;
+    return newErrors;
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    if (!validateForm()) {
+    const validationErrors = validate();
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
     onSubmit(formData);
 
     setFormData({
-      region: selectedRegion || "",
+      region: selectedRegion,
       observationType: "",
       temperature: "",
       heatIndex: "",
@@ -91,217 +91,136 @@ function FieldObservationForm({ selectedRegion, onSubmit }) {
   };
 
   return (
-    <section className="form-card">
+    <form
+      className="field-observation-form"
+      onSubmit={handleSubmit}
+    >
+      <div className="form-grid">
 
-      <div className="card-heading">
-
-        <div className="card-icon observation-icon">
-          +
-        </div>
-
-        <div>
-          <p className="section-label">
-            FIELD REPORT
-          </p>
-
-          <h2>
-            Ground Observation
-          </h2>
-
-          <p>
-            Record climate conditions observed by field personnel.
-          </p>
-        </div>
-
-      </div>
-
-      <form onSubmit={handleSubmit}>
-
-        {/* Region */}
-        <div className="form-group">
-
-          <label htmlFor="region">
-            Region
-          </label>
+        <div className="form-field">
+          <label>Region</label>
 
           <select
-            id="region"
             name="region"
             value={formData.region}
             onChange={handleChange}
           >
-            <option value="">
-              Select region
-            </option>
-
-            <option value="Mumbai">
-              Mumbai
-            </option>
-
-            <option value="Pune">
-              Pune
-            </option>
-
-            <option value="Delhi">
-              Delhi
-            </option>
-
-            <option value="Nagpur">
-              Nagpur
-            </option>
+            <option value="">Select region</option>
+            <option value="Mumbai">Mumbai</option>
+            <option value="Pune">Pune</option>
+            <option value="Delhi">Delhi</option>
+            <option value="Nagpur">Nagpur</option>
           </select>
 
           {errors.region && (
-            <small className="field-error">
+            <span className="field-error">
               {errors.region}
-            </small>
+            </span>
           )}
-
         </div>
 
-        {/* Observation type */}
-        <div className="form-group">
-
-          <label htmlFor="observationType">
-            Observation Type
-          </label>
+        <div className="form-field">
+          <label>Observation Type</label>
 
           <select
-            id="observationType"
             name="observationType"
             value={formData.observationType}
             onChange={handleChange}
           >
             <option value="">
-              Select observation type
+              Select observation
             </option>
-
             <option value="Temperature Check">
               Temperature Check
             </option>
-
-            <option value="Heat Index Assessment">
-              Heat Index Assessment
+            <option value="Heat Stress">
+              Heat Stress
             </option>
-
-            <option value="Ground Condition">
-              Ground Condition
+            <option value="Public Condition">
+              Public Condition
             </option>
-
-            <option value="Public Impact">
-              Public Impact
+            <option value="Infrastructure">
+              Infrastructure
             </option>
           </select>
 
           {errors.observationType && (
-            <small className="field-error">
+            <span className="field-error">
               {errors.observationType}
-            </small>
+            </span>
           )}
-
         </div>
 
-        <div className="two-column">
+        <div className="form-field">
+          <label>Observed Temperature</label>
 
-          {/* Temperature */}
-          <div className="form-group">
-
-            <label htmlFor="temperature">
-              Observed Temperature
-            </label>
-
-            <div className="input-with-unit">
-
-              <input
-                type="number"
-                id="temperature"
-                name="temperature"
-                value={formData.temperature}
-                onChange={handleChange}
-                placeholder="e.g. 42"
-                step="0.1"
-              />
-
-              <span>°C</span>
-
-            </div>
-
-            {errors.temperature && (
-              <small className="field-error">
-                {errors.temperature}
-              </small>
-            )}
-
+          <div className="input-with-unit">
+            <input
+              type="number"
+              name="temperature"
+              value={formData.temperature}
+              onChange={handleChange}
+              placeholder="e.g. 42"
+            />
+            <span>°C</span>
           </div>
 
-          {/* Heat Index */}
-          <div className="form-group">
+          {errors.temperature && (
+            <span className="field-error">
+              {errors.temperature}
+            </span>
+          )}
+        </div>
 
-            <label htmlFor="heatIndex">
-              Observed Heat Index
-            </label>
+        <div className="form-field">
+          <label>Observed Heat Index</label>
 
-            <div className="input-with-unit">
-
-              <input
-                type="number"
-                id="heatIndex"
-                name="heatIndex"
-                value={formData.heatIndex}
-                onChange={handleChange}
-                placeholder="e.g. 45"
-                step="0.1"
-              />
-
-              <span>°C</span>
-
-            </div>
-
-            {errors.heatIndex && (
-              <small className="field-error">
-                {errors.heatIndex}
-              </small>
-            )}
-
+          <div className="input-with-unit">
+            <input
+              type="number"
+              name="heatIndex"
+              value={formData.heatIndex}
+              onChange={handleChange}
+              placeholder="e.g. 45"
+            />
+            <span>°C</span>
           </div>
 
-        </div>
-
-        {/* Officer remark */}
-        <div className="form-group">
-
-          <label htmlFor="remark">
-            Officer Remark
-          </label>
-
-          <textarea
-            id="remark"
-            name="remark"
-            value={formData.remark}
-            onChange={handleChange}
-            placeholder="Enter field observations or important conditions..."
-            rows="4"
-          />
-
-          {errors.remark && (
-            <small className="field-error">
-              {errors.remark}
-            </small>
+          {errors.heatIndex && (
+            <span className="field-error">
+              {errors.heatIndex}
+            </span>
           )}
-
         </div>
 
-        <button
-          type="submit"
-          className="submit-observation"
-        >
-          Record Observation
-          <span>→</span>
-        </button>
+      </div>
 
-      </form>
+      <div className="form-field">
+        <label>Officer Remark</label>
 
-    </section>
+        <textarea
+          name="remark"
+          value={formData.remark}
+          onChange={handleChange}
+          placeholder="Enter field observations or additional remarks..."
+          rows="4"
+        />
+
+        {errors.remark && (
+          <span className="field-error">
+            {errors.remark}
+          </span>
+        )}
+      </div>
+
+      <button
+        className="submit-observation"
+        type="submit"
+      >
+        <span>＋</span>
+        Record Field Observation
+      </button>
+    </form>
   );
 }
 

@@ -1,16 +1,15 @@
 import React from "react";
 
 function StatusBadge({ level }) {
-
-  const normalizedLevel =
-    level?.toUpperCase() || "LOW";
+  const normalizedLevel = level
+    ? level.toUpperCase()
+    : "LOW";
 
   return (
     <span
       className={`status-badge status-${normalizedLevel.toLowerCase()}`}
     >
-      <span className="status-dot"></span>
-
+      <span className="badge-dot"></span>
       {normalizedLevel}
     </span>
   );

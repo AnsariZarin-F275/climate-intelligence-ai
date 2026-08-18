@@ -1,42 +1,79 @@
 import React, { useState } from "react";
-import Header from "../../components/Header";
 import FieldObservationForm from "../../components/FieldObservationForm";
 import ResponseActionPanel from "../../components/ResponseActionPanel";
 import StatusBadge from "../../components/StatusBadge";
 import "./ResponseManagement.css";
 
+const regions = {
+  Mumbai: {
+    temperature: 43,
+    humidity: 68,
+    windSpeed: 12,
+    heatIndex: 46,
+    responseStatus: "Response Required",
+    lastUpdated: "Just now",
+  },
+  Pune: {
+    temperature: 38,
+    humidity: 54,
+    windSpeed: 15,
+    heatIndex: 39,
+    responseStatus: "Monitoring",
+    lastUpdated: "2 min ago",
+  },
+  Delhi: {
+    temperature: 44,
+    humidity: 61,
+    windSpeed: 10,
+    heatIndex: 45,
+    responseStatus: "Response Required",
+    lastUpdated: "1 min ago",
+  },
+  Nagpur: {
+    temperature: 41,
+    humidity: 58,
+    windSpeed: 13,
+    heatIndex: 43,
+    responseStatus: "Team Standby",
+    lastUpdated: "3 min ago",
+  },
+};
+
+function getRiskLevel(heatIndex) {
+  if (heatIndex >= 45) return "CRITICAL";
+  if (heatIndex >= 40) return "HIGH";
+  if (heatIndex >= 30) return "MODERATE";
+  return "LOW";
+}
+
 function ResponseManagement({ onBack }) {
   const [selectedRegion, setSelectedRegion] = useState("Mumbai");
+  const [responseStatus, setResponseStatus] = useState(
+    regions.Mumbai.responseStatus
+  );
+  const [observationMessage, setObservationMessage] = useState("");
+  const [actionMessage, setActionMessage] = useState("");
 
-  const [responseData, setResponseData] = useState({
-    Mumbai: {
-      riskLevel: "CRITICAL",
-      responseStatus: "Response Required",
-      lastUpdated: "Just now",
-    },
-    Pune: {
-      riskLevel: "HIGH",
-      responseStatus: "Monitoring",
-      lastUpdated: "2 min ago",
-    },
-    Delhi: {
-      riskLevel: "MODERATE",
-      responseStatus: "Monitoring",
-      lastUpdated: "4 min ago",
-    },
-    Nagpur: {
-      riskLevel: "HIGH",
-      responseStatus: "Response Required",
-      lastUpdated: "3 min ago",
-    },
-  });
+  const region = regions[selectedRegion];
+  const riskLevel = getRiskLevel(region.heatIndex);
 
-  const [observation, setObservation] = useState(null);
-  const [successMessage, setSuccessMessage] = useState("");
+  const handleRegionChange = (event) => {
+    const regionName = event.target.value;
 
-  const currentRegion = responseData[selectedRegion];
+    setSelectedRegion(regionName);
+    setResponseStatus(regions[regionName].responseStatus);
+    setObservationMessage("");
+    setActionMessage("");
+  };
 
-  // Update response status when an action is selected
+  const handleObservationSubmit = (data) => {
+    console.log("Field observation:", data);
+
+    setObservationMessage(
+      `Field observation for ${selectedRegion} has been recorded successfully.`
+    );
+  };
+
   const handleResponseAction = (action) => {
     let newStatus = "Monitoring";
 
@@ -48,228 +85,265 @@ function ResponseManagement({ onBack }) {
       newStatus = "Enhanced Monitoring";
     }
 
-    setResponseData((previousData) => ({
-      ...previousData,
-      [selectedRegion]: {
-        ...previousData[selectedRegion],
-        responseStatus: newStatus,
-        lastUpdated: "Just now",
-      },
-    }));
+    setResponseStatus(newStatus);
 
-    setSuccessMessage(
+    setActionMessage(
       `${action} selected for ${selectedRegion}. Response status updated.`
     );
-
-    setTimeout(() => {
-      setSuccessMessage("");
-    }, 4000);
-  };
-
-  // Receive submitted field observation from child component
-  const handleObservationSubmit = (formData) => {
-    setObservation(formData);
-
-    setSuccessMessage(
-      `Field observation for ${formData.region} has been recorded successfully.`
-    );
-
-    setTimeout(() => {
-      setSuccessMessage("");
-    }, 4000);
   };
 
   return (
     <div className="response-page">
-
-      <Header
-        appName="Climate Intelligence AI"
-        dashboardTitle="Response Management"
-        officerStatus="Online"
-        lastSyncTime={new Date().toLocaleTimeString()}
-      />
-
-      <main className="response-container">
-
-        {/* Page heading */}
-        <section className="response-heading">
-          <div>
-            <p className="section-label">DISASTER RESPONSE CONTROL</p>
-
-            <h1>Response Management</h1>
-
-            <p className="response-description">
-              Coordinate field observations and response actions for
-              heatwave-affected regions.
-            </p>
+      {/* Page Header */}
+      <section className="response-hero">
+        <div>
+          <div className="eyebrow">
+            DISASTER RESPONSE CONTROL
           </div>
 
-          {onBack && (
-            <button
-              className="back-button"
-              onClick={onBack}
+          <h1>Response Management</h1>
+
+          <p>
+            Coordinate field observations and response actions for
+            heatwave-affected regions.
+          </p>
+        </div>
+
+        <div className="hero-status">
+          <span className="status-dot"></span>
+          <span>Operations Active</span>
+        </div>
+      </section>
+
+      {/* Region Selector */}
+      <section className="region-selector-card">
+        <div className="region-selector-left">
+          <div className="region-icon">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
             >
-              ← Back to Risk Dashboard
-            </button>
-          )}
-        </section>
-
-        {/* Region selector */}
-        <section className="region-selector-card">
-
-          <div className="selector-info">
-            <span className="selector-icon">◎</span>
-
-            <div>
-              <p className="selector-label">
-                MONITORED REGION
-              </p>
-
-              <h2>
-                {selectedRegion}
-              </h2>
-            </div>
+              <circle
+                cx="12"
+                cy="12"
+                r="8"
+                stroke="currentColor"
+                strokeWidth="1.8"
+              />
+              <circle
+                cx="12"
+                cy="12"
+                r="3"
+                fill="currentColor"
+              />
+            </svg>
           </div>
+
+          <div>
+            <span className="small-label">
+              MONITORED REGION
+            </span>
+
+            <h2>{selectedRegion}</h2>
+          </div>
+        </div>
+
+        <div className="region-select-wrapper">
+          <label htmlFor="response-region">
+            Select region
+          </label>
 
           <select
+            id="response-region"
             value={selectedRegion}
-            onChange={(event) => {
-              setSelectedRegion(event.target.value);
-              setObservation(null);
-            }}
+            onChange={handleRegionChange}
           >
             <option value="Mumbai">Mumbai</option>
             <option value="Pune">Pune</option>
             <option value="Delhi">Delhi</option>
             <option value="Nagpur">Nagpur</option>
           </select>
+        </div>
+      </section>
 
-        </section>
+      {/* Current Response Status */}
+      <section className="response-status-card">
+        <div className="response-status-main">
+          <div className={`alert-icon ${riskLevel.toLowerCase()}`}>
+            !
+          </div>
 
-        {/* Current response status */}
-        <section className="current-status-card">
+          <div>
+            <span className="small-label">
+              CURRENT RESPONSE STATUS
+            </span>
 
-          <div className="status-main">
+            <h3>{responseStatus}</h3>
 
-            <div className="status-icon">
-              !
+            <p>
+              Last updated: {region.lastUpdated}
+            </p>
+          </div>
+        </div>
+
+        <div className="current-risk">
+          <span className="small-label">
+            CURRENT RISK
+          </span>
+
+          <StatusBadge level={riskLevel} />
+        </div>
+      </section>
+
+      {/* Climate Snapshot */}
+      <section className="climate-snapshot">
+        <div className="section-heading">
+          <div>
+            <span className="small-label">
+              LIVE CONDITIONS
+            </span>
+            <h2>Climate Snapshot</h2>
+          </div>
+
+          <span className="live-indicator">
+            <span></span>
+            Live data
+          </span>
+        </div>
+
+        <div className="climate-grid">
+          <div className="climate-metric">
+            <span className="metric-icon">°</span>
+            <div>
+              <span>Temperature</span>
+              <strong>{region.temperature}°C</strong>
+            </div>
+          </div>
+
+          <div className="climate-metric">
+            <span className="metric-icon">%</span>
+            <div>
+              <span>Humidity</span>
+              <strong>{region.humidity}%</strong>
+            </div>
+          </div>
+
+          <div className="climate-metric">
+            <span className="metric-icon">≈</span>
+            <div>
+              <span>Wind Speed</span>
+              <strong>{region.windSpeed} km/h</strong>
+            </div>
+          </div>
+
+          <div className={`climate-metric heat-index ${riskLevel.toLowerCase()}`}>
+            <span className="metric-icon">⚠</span>
+            <div>
+              <span>Heat Index</span>
+              <strong>{region.heatIndex}°C</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Operations */}
+      <section className="operations-grid">
+        {/* Field Observation */}
+        <div className="operation-card">
+          <div className="operation-header">
+            <div className="operation-icon blue">
+              +
             </div>
 
             <div>
-              <p className="status-overline">
-                CURRENT RESPONSE STATUS
-              </p>
+              <span className="small-label">
+                FIELD REPORT
+              </span>
 
-              <h2>
-                {currentRegion.responseStatus}
-              </h2>
+              <h2>Ground Observation</h2>
 
               <p>
-                Last updated: {currentRegion.lastUpdated}
+                Record climate conditions observed by field personnel.
               </p>
             </div>
-
           </div>
 
-          <div className="risk-status">
-
-            <span className="risk-label">
-              CURRENT RISK
-            </span>
-
-            <StatusBadge
-              level={currentRegion.riskLevel}
-            />
-
-          </div>
-
-        </section>
-
-        {/* Success message */}
-        {successMessage && (
-          <div className="success-message">
-            <span>✓</span>
-            <p>{successMessage}</p>
-          </div>
-        )}
-
-        {/* Main response management grid */}
-        <section className="response-grid">
-
-          {/* Field observation */}
           <FieldObservationForm
             selectedRegion={selectedRegion}
             onSubmit={handleObservationSubmit}
           />
 
-          {/* Response actions */}
+          {observationMessage && (
+            <div className="success-message">
+              <span>✓</span>
+              {observationMessage}
+            </div>
+          )}
+        </div>
+
+        {/* Response Actions */}
+        <div className="operation-card">
+          <div className="operation-header">
+            <div className="operation-icon orange">
+              ⚡
+            </div>
+
+            <div>
+              <span className="small-label">
+                RESPONSE COORDINATION
+              </span>
+
+              <h2>Response Actions</h2>
+
+              <p>
+                Select an appropriate action for {selectedRegion}.
+              </p>
+            </div>
+          </div>
+
           <ResponseActionPanel
-            selectedRegion={selectedRegion}
-            riskLevel={currentRegion.riskLevel}
-            responseStatus={currentRegion.responseStatus}
+            riskLevel={riskLevel}
+            responseStatus={responseStatus}
             onAction={handleResponseAction}
           />
 
-        </section>
-
-        {/* Latest field observation */}
-        {observation && (
-          <section className="observation-summary">
-
-            <div className="summary-header">
-              <div>
-                <p className="section-label">
-                  LATEST FIELD REPORT
-                </p>
-
-                <h2>
-                  Ground Observation
-                </h2>
-              </div>
-
-              <span className="recorded-badge">
-                ✓ Recorded
-              </span>
+          {actionMessage && (
+            <div className="success-message">
+              <span>✓</span>
+              {actionMessage}
             </div>
+          )}
+        </div>
+      </section>
 
-            <div className="observation-grid">
+      {/* Bottom information */}
+      <section className="response-guidance">
+        <div className="guidance-icon">
+          i
+        </div>
 
-              <div className="observation-item">
-                <span>Region</span>
-                <strong>{observation.region}</strong>
-              </div>
+        <div>
+          <strong>Response coordination guidance</strong>
 
-              <div className="observation-item">
-                <span>Observation Type</span>
-                <strong>{observation.observationType}</strong>
-              </div>
+          <p>
+            Actions should be selected according to the current heat
+            index risk level and field conditions. Critical conditions
+            require immediate response coordination.
+          </p>
+        </div>
+      </section>
 
-              <div className="observation-item">
-                <span>Temperature</span>
-                <strong>
-                  {observation.temperature}°C
-                </strong>
-              </div>
-
-              <div className="observation-item">
-                <span>Heat Index</span>
-                <strong>
-                  {observation.heatIndex}°C
-                </strong>
-              </div>
-
-            </div>
-
-            <div className="officer-remark">
-              <span>Officer Remark</span>
-              <p>{observation.remark}</p>
-            </div>
-
-          </section>
-        )}
-
-      </main>
-
+      {/* Back button only if parent provides it */}
+      {onBack && (
+        <button
+          className="back-button"
+          onClick={onBack}
+        >
+          ← Back to Risk Dashboard
+        </button>
+      )}
     </div>
   );
 }
